@@ -27,7 +27,7 @@ var ass = require('ass-client')({
 ass.uploadImage('my.jpg').then(function (res) {
 	console.log('Image uploaded', res.body);
 
-	var signedUrl = client.createImageUrl(res.body.id, { resize: { width: 10, height: 10 } });
+	var signedUrl = ass.createImageUrl(res.body.id, { resize: { width: 10, height: 10 } });
 	//create a signed url for the uploaded image in a different size
 	console.log('Smaller image', url);
 })
