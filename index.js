@@ -1,12 +1,29 @@
 'use strict';
-var request = require('request-prom'),
+
+var request = require('./lib/node/request'),
 	qs = require('qs'),
-	crypto = require('crypto'),
+	crypto = require('./lib/node/crypto'),
 	printf = require('util').format,
 	join = require('path').join;
 
 /**
- * Create ASS API instance
+ * Extend `target` with properties from `source`.
+ * @param  {Object} target
+ * @param  {Object} source
+ * @return {Object}
+ */
+function extend(target, source) {
+    for (var prop in source) {
+        if (source.hasOwnProperty(prop)) {
+            target[prop] = source[prop];
+        }
+    }
+
+    return target;
+}
+
+/**
+ * Create ASS API instance.
  * @param {Object} opts
  * @param {String} opts.httpUrl
  * @param {String} opts.httpsUrl
@@ -21,83 +38,158 @@ function ASS(opts) {
 }
 
 /**
- * Get default headers
- * @param {Object} add headers
+ * Get default headers.
+ * @param {Object} headers Add headers
  * @return {Object}
  */
 ASS.prototype.getDefaultHeaders = function (headers) {
-	var h = { Authorization: 'bearer ' + this.accessToken };
+	var h = {
+		'Authorization': 'bearer ' + this.accessToken
+	};
 
-	if (!headers) {
-		return h;
+	if (headers) {
+		Object.keys(headers).forEach(function (key) {
+			h[key] = headers[key];
+		});
 	}
-
-	Object.keys(headers).forEach(function (key) {
-		h[key] = headers[key];
-	});
 
 	return h;
 };
 
 /**
- * Upload file to endpoint
+ * Upload file to endpoint.
  * @param  {String} endpoint
- * @param  {String|stream.Readable} file     full path to the file or stream.Readable
- * @return {Promise}	Resolves with response object
+ * @param  {File|String|stream.Readable} file File object, full path to the file or stream.Readable
+ * @param  {Object} headers Add additional headers
+ * @return {Promise} Resolves with response object
  */
-ASS.prototype.upload = function (endpoint, file) {
-	return request.postFile(this.getUrl(endpoint), file, {
-		headers: this.getDefaultHeaders(),
-		json: true
-	});
+ASS.prototype.upload = function (endpoint, file, headers) {
+	return request.postFile(this.getUrl(endpoint), file, this.getDefaultHeaders(headers));
 };
 
 /**
- * Upload a file to /files endpoint
- * @param  {String|stream.Readable} file     full path to the file or stream.Readable
- * @return {Promise}	Resolves with response object
+ * Upload a file to /files endpoint.
+ * @param  {File|String|stream.Readable} file File object, full path to the file or stream.Readable
+ * @param  {String} path Additional path to append to /files
+ * @param  {Object} headers Add additional headers
+ * @return {Promise} Resolves with response object
  */
-ASS.prototype.uploadFile = function (file) {
-	return this.upload('/files', file);
+ASS.prototype.uploadFile = function (file, path, headers) {
+	var endpoint = '/files';
+
+	if (path) {
+		endpoint += path.charAt(0) === '/' ? path : '/' + path;
+	}
+
+	return this.upload(endpoint, file, headers);
 };
 
 /**
- * Upload a
- * @param  {String|stream.Readable} file     full path to the file or stream.Readable
- * @return {Promise}	Resolves with response object
+ * Upload an image.
+ * @param  {File|String|stream.Readable} file File object, full path to the file or stream.Readable
+ * @param  {Object} headers Add additional headers
+ * @return {Promise} Resolves with response object
  */
-ASS.prototype.uploadImage = function (file) {
-	return this.upload('/images', file);
+ASS.prototype.uploadImage = function (file, headers) {
+	return this.upload('/images', file, headers);
 };
 
 /**
- * Make a post request to an endpoint
+ * Make a request.
+ * @param  {String}  endpoint
+ * @param  {Object}  [opts] Options to request
+ * @param  {Boolean} opts.http Set to true if request should use HTTP instead of HTTPS URL
+ * @param  {String}  opts.method Request method (GET/HEAD/POST/PUT/PATCH/DELETE)
+ * @param  {Object}  opts.headers Additional headers to add
+ * @param  {Number}  opts.timeout Number of ms to wait before timing out
+ * @param  {String|Object} opts.body Data to send
+ * @return {Promise} Resolves with response object
+ */
+ASS.prototype.request = function (endpoint, opts) {
+	opts = extend({}, opts);
+	opts.url = this.getUrl(endpoint, opts.http);
+	opts.headers = this.getRequestHeaders(opts.headers);
+	delete opts.http;
+
+	return request(opts);
+};
+
+/**
+ * Get headers for convenient request methods.
+ * @param  {Object} headers Add additional headers
+ * @return {Object}
+ */
+ASS.prototype.getRequestHeaders = function (headers) {
+	return this.getDefaultHeaders(extend({'Content-Type': 'application/json'}, headers));
+};
+
+/**
+ * Make a GET request to an endpoint.
  * @param  {String} endpoint
- * @return {Promise}	Resolves with response object
+ * @param  {Object} [opts] Options to request
+ * @return {Promise} Resolves with response object
  */
-ASS.prototype.post = function (endpoint) {
-	return request.post(this.getUrl(endpoint), {
-		headers: this.getDefaultHeaders({'Content-Type': 'application/json'}),
-		json: true
-	});
+ASS.prototype.get = function (endpoint, opts) {
+	return this.request(endpoint, extend({method: 'GET'}, opts));
 };
 
 /**
- * Make a get request to an endpoint
+ * Make a DELETE request to an endpoint.
  * @param  {String} endpoint
- * @return {Promise}	Resolves with response object
+ * @param  {Object} [opts] Options to request
+ * @return {Promise} Resolves with response object
  */
-ASS.prototype.get = function (endpoint) {
-	return request.get(this.getUrl(endpoint), {
-		headers: this.getDefaultHeaders({'Content-Type': 'application/json'}),
-		json: true
-	});
+ASS.prototype.delete = function (endpoint, opts) {
+	return this.request(endpoint, extend({method: 'DELETE'}, opts));
 };
 
 /**
- * Get full url to ASS endpoint, defaults to https url
+ * Make a HEAD request to an endpoint.
  * @param  {String} endpoint
- * @param  {Boolean} [http] if we should return http url
+ * @param  {Object} [opts] Options to request
+ * @return {Promise} Resolves with response object
+ */
+ASS.prototype.head = function (endpoint, opts) {
+	return this.request(endpoint, extend({method: 'HEAD'}, opts));
+};
+
+/**
+ * Make a POST request to an endpoint.
+ * @param  {String} endpoint
+ * @param  {String|Object} data Data to send as body
+ * @param  {Object} [opts] Options to request
+ * @return {Promise} Resolves with response object
+ */
+ASS.prototype.post = function (endpoint, data, opts) {
+	return this.request(endpoint, extend({method: 'POST', body: data}, opts));
+};
+
+/**
+ * Make a PUT request to an endpoint.
+ * @param  {String} endpoint
+ * @param  {String|Object} data Data to send as body
+ * @param  {Object} [opts] Options to request
+ * @return {Promise} Resolves with response object
+ */
+ASS.prototype.put = function (endpoint, data, opts) {
+	return this.request(endpoint, extend({method: 'PUT', body: data}, opts));
+};
+
+/**
+ * Make a PATCH request to an endpoint.
+ * @param  {String} endpoint
+ * @param  {String|Object} data Data to send as body
+ * @param  {Object} [opts] Options to request
+ * @return {Promise} Resolves with response object
+ */
+ASS.prototype.patch = function (endpoint, data, opts) {
+	return this.request(endpoint, extend({method: 'PATCH', body: data}, opts));
+};
+
+/**
+ * Get full URL to ASS endpoint, defaults to https URL.
+ * @param  {String} endpoint
+ * @param  {Boolean} [http] If we should return http URL
  * @return {String}
  */
 ASS.prototype.getUrl = function (endpoint, http) {
@@ -105,30 +197,32 @@ ASS.prototype.getUrl = function (endpoint, http) {
 };
 
 /**
- * Create a signed url from image id and actions
+ * Create a signed URL from image id and actions.
  * @param  {Integer} id - image id
  * @param  {Object} [actions]
  * @return {String}
  */
 ASS.prototype.createImageUrl = function (id, actions) {
 	var url = this.getUrl(printf('/users/%s/images/%s.jpg', this.username, id), true);
+
 	if (actions) {
-		url += '?' + qs.stringify({ t: actions });
+		url += '?' + qs.stringify({ t: actions }, { encode: false });
 	}
+
 	return url + (actions ? '&' : '?') + 'accessToken=' + this.createSignature(url);
 };
 
 /**
- * Create signature for a image or file url
- * @param  {String} url
+ * Create signature for an image or file URL.
+ * @param  {String} URL
  * @return {String}
  */
 ASS.prototype.createSignature = function (url) {
-	return crypto.createHmac('sha256', this.accessToken).update(url).digest('hex');
+	return crypto.sha256(this.accessToken, url);
 };
 
 /**
- * Create ASS instance
+ * Create ASS instance.
  * @param {Object} opts
  * @param {String} opts.httpUrl
  * @param {String} opts.httpsUrl
