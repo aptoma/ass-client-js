@@ -1,123 +1,235 @@
-[![Build Status](https://travis-ci.org/aptoma/ass-client-node.svg)](https://travis-ci.org/aptoma/ass-client-node)
+[![Build Status](https://travis-ci.org/aptoma/ass-client-js.svg)](https://travis-ci.org/aptoma/ass-client-js)
 
-# ass-client
+# ass-client-js
 
-Node client for Aptoma Smooth Storage
+JavaScript client for Aptoma Smooth Storage.
 
 ## Installation
 
-This module is installed via npm:
+This module is installed via NPM:
 
 	$ npm install ass-client
 
-
 ## Examples
 
+### Upload and resize image (in Node.js)
 
-### Upload and resize image
-
-```
-var ass = require('ass-client')({
+```javascript
+var assClient = require('ass-client')({
 	httpUrl: 'http://ass.com',
 	httpsUrl: 'https://ass.com',
 	accessToken: 'secret',
 	username: 'foobar'
 });
 
-ass.uploadImage('my.jpg').then(function (res) {
-	console.log('Image uploaded', res.body);
-
-	var signedUrl = ass.createImageUrl(res.body.id, { resize: { width: 10, height: 10 } });
-	//create a signed url for the uploaded image in a different size
-	console.log('Smaller image', url);
-})
+assClient.uploadImage('my.jpg').then(function (res) {
+	var signedUrl = assClient.createImageUrl(res.id, {
+		resize: {
+			width: 100,
+			height: 100
+		}
+	});
+	// Create a signed URL for the uploaded image in a different size
+	console.log('Smaller image', signedUrl);
+});
 ```
 
+### Upload and resize image (in browser)
+```markup
+<script src="ass-client-js/dist/ass-client.js"></script>
+<script>
+	var assClient = AssClient({
+		httpUrl: 'http://ass.com',
+		httpsUrl: 'https://ass.com',
+		accessToken: 'secret',
+		username: 'foobar'
+	});
+
+	assClient.uploadImage(file).then(function (res) {
+		var signedUrl = assClient.createImageUrl(res.id, {
+			resize: {
+				width: 100,
+				height: 100
+			}
+		});
+		// Create a signed URL for the uploaded image in a different size
+		console.log('Smaller image', signedUrl);
+	});
+</script>
+```
 
 ## Documentation
 
-ASS(opts, opts.httpUrl, opts.httpsUrl, opts.accessToken, opts.username) 
+ASS(opts)
 -----------------------------
-Create ASS API instance
+Create ASS API instance.
 
 **Parameters**
 
 **opts**: Object, Create ASS API instance
 
-**opts.httpUrl**: String, Create ASS API instance
+**opts.httpUrl**: String, URL to use for HTTP requests.
 
-**opts.httpsUrl**: String, Create ASS API instance
+**opts.httpsUrl**: String, URL to use for HTTPS requests.
 
-**opts.accessToken**: String, Create ASS API instance
+**opts.accessToken**: String, Token used for accessing the API and signing URLs.
 
-**opts.username**: String, Create ASS API instance
+**opts.username**: String, Username used in paths.
 
 
-getDefaultHeaders(add) 
+getDefaultHeaders(add)
 -----------------------------
-Get default headers
+Get default headers.
 
 **Parameters**
 
-**add**: Object, headers
+**add**: Object, Add headers
 
-**Returns**: Object, 
+**Returns**: Object
 
-upload(endpoint, file) 
+upload(endpoint, file, \[headers\])
 -----------------------------
-Upload file to endpoint
+Upload file to endpoint.
 
 **Parameters**
 
 **endpoint**: String, Upload file to endpoint
 
-**file**: String | stream.Readable, full path to the file or stream.Readable
+**file**: File | String | stream.Readable, File object, full path to the file or stream.Readable
+
+**headers**: Object, Add additional headers
 
 **Returns**: Promise, Resolves with response object
 
-uploadFile(file) 
+uploadFile(file, \[path\], \[headers\]).
 -----------------------------
-Upload a file to /files endpoint
+Upload a file to /files endpoint.
 
 **Parameters**
 
-**file**: String | stream.Readable, full path to the file or stream.Readable
+**file**: File | String | stream.Readable, File object, full path to the file or stream.Readable
+
+**path**: String, Additional path to append to /files
+
+**headers**: Object, Add additional headers
 
 **Returns**: Promise, Resolves with response object
 
-uploadImage(file) 
+uploadImage(file, \[headers\])
 -----------------------------
-Upload a
+Upload a image to /images endpoint.
 
 **Parameters**
 
-**file**: String | stream.Readable, full path to the file or stream.Readable
+**file**: File | String | stream.Readable, File object, full path to the file or stream.Readable
+
+**headers**: Object, Add additional headers
 
 **Returns**: Promise, Resolves with response object
 
-post(endpoint) 
+request(endpoint, \[data\], \[opts\])
 -----------------------------
-Make a post request to an endpoint
+Make a request to an endpoint.
 
 **Parameters**
 
-**endpoint**: String, Make a post request to an endpoint
+**endpoint**: String, Make a request to an endpoint
+
+**opts**: Object, Options to the request
+
+**opts.http**: Boolean, Set to true if request should use HTTP instead of HTTPS URL
+
+**opts.method**: String, Request method (GET/HEAD/POST/PUT/PATCH/DELETE)
+
+**opts.headers**: Object, Add additional headers
+
+**opts.timeout**: Number, Number of ms to wait before timing out
+
+**opts.body**: String | Object, Data to send
 
 **Returns**: Promise, Resolves with response object
 
-get(endpoint) 
+get(endpoint, \[opts\])
 -----------------------------
-Make a get request to an endpoint
+Make a GET request to an endpoint.
 
 **Parameters**
 
-**endpoint**: String, Make a get request to an endpoint
+**endpoint**: String, Make a request to an endpoint
+
+**opts**: Object, [Options](#requestendpoint-data-opts) to request
 
 **Returns**: Promise, Resolves with response object
 
-getUrl(endpoint, http) 
+head(endpoint, \[opts\])
 -----------------------------
-Get full url to ASS endpoint, defaults to https url
+Make a HEAD request to an endpoint.
+
+**Parameters**
+
+**endpoint**: String, Make a request to an endpoint
+
+**opts**: Object, [Options](#requestendpoint-data-opts) to request
+
+**Returns**: Promise, Resolves with response object
+
+post(endpoint, \[data\], \[opts\])
+-----------------------------
+Make a POST request to an endpoint.
+
+**Parameters**
+
+**endpoint**: String, Make a request to an endpoint
+
+**data**: String | Object, Data to send as body
+
+**opts**: Object, [Options](#requestendpoint-data-opts) to request
+
+**Returns**: Promise, Resolves with response object
+
+patch(endpoint, \[data\], \[opts\])
+-----------------------------
+Make a PATCH request to an endpoint.
+
+**Parameters**
+
+**endpoint**: String, Make a request to an endpoint
+
+**data**: String | Object, Data to send as body
+
+**opts**: Object, [Options](#requestendpoint-data-opts) to request
+
+**Returns**: Promise, Resolves with response object
+
+put(endpoint, \[data\], \[opts\])
+-----------------------------
+Make a PUT request to an endpoint.
+
+**Parameters**
+
+**endpoint**: String, Make a request to an endpoint
+
+**data**: String | Object, Data to send as body
+
+**opts**: Object, [Options](#requestendpoint-data-opts) to request
+
+**Returns**: Promise, Resolves with response object
+
+delete(endpoint, \[opts\])
+-----------------------------
+Make a DELETE request to an endpoint.
+
+**Parameters**
+
+**endpoint**: String, Make a request to an endpoint
+
+**opts**: Object, [Options](#requestendpoint-data-opts) to request
+
+**Returns**: Promise, Resolves with response object
+
+getUrl(endpoint, http)
+-----------------------------
+Get full URL to ASS endpoint, defaults to https URL.
 
 **Parameters**
 
@@ -125,11 +237,11 @@ Get full url to ASS endpoint, defaults to https url
 
 **http**: Boolean, if we should return http url
 
-**Returns**: String, 
+**Returns**: String
 
-createImageUrl(id, actions) 
+createImageUrl(id, actions)
 -----------------------------
-Create a signed url from image id and actions
+Create a signed URL from image id and actions.
 
 **Parameters**
 
@@ -137,14 +249,14 @@ Create a signed url from image id and actions
 
 **actions**: Object, Create a signed url from image id and actions
 
-**Returns**: String, 
+**Returns**: String
 
-createSignature(url) 
+createSignature(url)
 -----------------------------
-Create signature for a image or file url
+Create signature for a image or file URL.
 
 **Parameters**
 
 **url**: String, Create transformation signature
 
-**Returns**: String, 
+**Returns**: String

@@ -32,12 +32,5 @@
 	"globalstrict": true,
 	"white" : true,
 	"expr" : true,
-	"smarttabs": true,
-	"predef" : [
-		"-Promise",
-		"describe",
-		"it",
-		"beforeEach",
-		"afterEach"
-	]
+	"smarttabs": true
 }

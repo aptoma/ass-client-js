@@ -1,11 +1,11 @@
 {
   "name": "ass-client",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Aptoma Smooth Storage client",
   "main": "index.js",
   "scripts": {
-    "test": "jshint test/ index.js && istanbul test --preload-sources _mocha -- -u exports -R spec test/*.test.js test/**/*.test.js",
-    "ci": "npm test --coverage && istanbul report cobertura",
+    "test": "jshint test/ index.js && istanbul test --include-all-sources _mocha -- -u exports -R spec test/*.test.js test/**/*.test.js",
+    "ci": "gulp test && npm test --coverage && istanbul report cobertura",
     "release": "npm test && release-it -n -i patch",
     "release:minor": "npm test && release-it -n -i minor",
     "release:major": "npm test && release-it -n -i major"
@@ -25,14 +25,30 @@
   },
   "homepage": "https://github.com/aptoma/ass-client-node",
   "dependencies": {
-    "qs": "^2.2.4",
-    "request-prom": "^0.1.1"
+    "qs": "^5.2.0"
   },
   "devDependencies": {
+    "browserify": "^12.0.0",
+    "chai": "^3.4.0",
+    "es6-promise": "^3.0.2",
+    "gulp": "^3.9.0",
+    "gulp-uglify": "^1.4.2",
     "istanbul": "^0.3.2",
-    "jshint": "^2.5.6",
+    "jshint": "^2.8.0",
+    "karma": "^0.13.14",
+    "karma-mocha": "^0.2.0",
+    "karma-phantomjs-launcher": "^0.2.1",
     "mocha": "^1.21.4",
+    "nock": "^2.16.1",
+    "phantomjs": "^1.9.18",
+    "readable-stream": "^2.0.3",
     "release-it": "0.0.11",
-    "should": "^4.0.4"
+    "request-prom": "^1.0.0",
+    "sinon-browser-only": "^1.12.1",
+    "through": "^2.3.8",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "whatwg-fetch": "github/fetch",
+    "xtend": "^4.0.0"
   }
 }
