@@ -81,7 +81,7 @@ describe('ASS Client', function () {
 					assert.equal(ex.message, 'Request to https://ass.com/500-fail-string failed. code: 500');
 					assert.equal(ex.name, 'ResponseError');
 					assert.equal(ex.statusCode, 500);
-					assert.deepEqual(ex.body, 'FAIL');
+					assert.deepEqual(ex.response.body, 'FAIL');
 					done();
 				});
 			});
@@ -92,7 +92,7 @@ describe('ASS Client', function () {
 				this.client.request('500-fail-json').catch(function (ex) {
 					assert.equal(ex.name, 'ResponseError');
 					assert.equal(ex.statusCode, 500);
-					assert.deepEqual(ex.body, {error: true});
+					assert.deepEqual(ex.response.body, {error: true});
 					done();
 				});
 			});
