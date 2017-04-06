@@ -200,16 +200,22 @@ ASS.prototype.getUrl = function (endpoint, http) {
  * Create a signed URL from image id and actions.
  * @param  {Integer} id - image id
  * @param  {Object} [actions]
+ * @param  {Object} [options]
+ * @param  {Boolean} [options.https] if we should return https
+ * @param  {Boolean} [options.encode] if we should url encode the actions
  * @return {String}
  */
-ASS.prototype.createImageUrl = function (id, actions) {
-	var url = this.getUrl(printf('/users/%s/images/%s.jpg', this.username, id), true);
+ASS.prototype.createImageUrl = function (id, actions, options) {
+	options = options ? options : {};
+	options.https = typeof options.https === 'boolean' ? options.https : false;
+	options.encode = typeof options.encode === 'boolean' ? options.encode : false;
 
+	var url = this.getUrl(printf('/users/%s/images/%s.jpg', this.username, id), !options.https);
 	if (actions) {
 		url += '?' + qs.stringify({ t: actions }, { encode: false });
 	}
 
-	return url + (actions ? '&' : '?') + 'accessToken=' + this.createSignature(url);
+	return (options.encode ? encodeURI(url) : url) + (actions ? '&' : '?') + 'accessToken=' + this.createSignature(url);
 };
 
 /**

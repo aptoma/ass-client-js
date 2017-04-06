@@ -295,6 +295,17 @@ describe('ASS Client', function () {
 			url = this.client.createImageUrl(1);
 			assert.equal(url, 'http://ass.com/users/foobar/images/1.jpg?accessToken=85890f047b3945a1f33f4eba4593fd9efa359774e68bc9d62b71c86974bb9463');
 		});
+
+		it('should create a https url', function () {
+			var url = this.client.createImageUrl(1, { resize: { width: 10, height: 10 } }, {https: true});
+			assert.equal(url, 'https://ass.com/users/foobar/images/1.jpg?t[resize][width]=10&t[resize][height]=10&accessToken=f74655384e286c28f40b8998f5c75121c67bf13f4ce0330f31104ae74f0a84c1');
+
+		});
+
+		it('should encode the url', function () {
+			var url = this.client.createImageUrl(1, { resize: { width: 10, height: 10 } }, {encode: true});
+			assert.equal(url, 'http://ass.com/users/foobar/images/1.jpg?t%5Bresize%5D%5Bwidth%5D=10&t%5Bresize%5D%5Bheight%5D=10&accessToken=89085a51aa4864e89cec7ec9cbd20f895c2cad51ebb07a0f4a96a60277157662');
+		});
 	});
 
 	describe('createSignature()', function () {
