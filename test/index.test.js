@@ -304,7 +304,7 @@ describe('ASS Client', function () {
 
 		it('should encode the url', function () {
 			var url = this.client.createImageUrl(1, { resize: { width: 10, height: 10 } }, {encode: true});
-			assert.equal(url, 'http://ass.com/users/foobar/images/1.jpg?t%5Bresize%5D%5Bwidth%5D=10&t%5Bresize%5D%5Bheight%5D=10&accessToken=d7d57e31ef0acf95f8bd83e9a3b98295286f27af9d578d309d638eb91e1de4fe');
+			assert.equal(url, 'http://ass.com/users/foobar/images/1.jpg?t%5Bresize%5D%5Bwidth%5D=10&t%5Bresize%5D%5Bheight%5D=10&accessToken=89085a51aa4864e89cec7ec9cbd20f895c2cad51ebb07a0f4a96a60277157662');
 		});
 	});
 

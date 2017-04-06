@@ -209,13 +209,12 @@ ASS.prototype.createImageUrl = function (id, actions, options) {
 	options = options ? options : {};
 	options.https = typeof options.https === 'boolean' ? options.https : false;
 	options.encode = typeof options.encode === 'boolean' ? options.encode : false;
-	var url = this.getUrl(printf('/users/%s/images/%s.jpg', this.username, id), !options.https);
 
-	if (actions) {
-		url += '?' + qs.stringify({ t: actions }, { encode: options.encode });
-	}
+	var baseUrl = this.getUrl(printf('/users/%s/images/%s.jpg', this.username, id), !options.https);
+	var rawUrl = actions ?  baseUrl + '?' + qs.stringify({ t: actions }, { encode: false }) : baseUrl;
+	var url = actions ? baseUrl + '?' + qs.stringify({ t: actions }, { encode: options.encode }) : baseUrl;
 
-	return url + (actions ? '&' : '?') + 'accessToken=' + this.createSignature(url);
+	return url + (actions ? '&' : '?') + 'accessToken=' + this.createSignature(rawUrl);
 };
 
 /**
