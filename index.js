@@ -4,7 +4,7 @@ var request = require('./lib/node/request'),
 	qs = require('qs'),
 	crypto = require('./lib/node/crypto'),
 	printf = require('util').format,
-	join = require('path').join;
+	join = require('path').posix.join;
 
 /**
  * Extend `target` with properties from `source`.
