@@ -38,7 +38,7 @@
     "jshint": "^2.8.0",
     "karma": "^0.13.14",
     "karma-mocha": "^0.2.0",
-    "karma-phantomjs-launcher": "^0.2.1",
+    "karma-phantomjs-launcher": "^1.0.2",
     "mocha": "^1.21.4",
     "nock": "^2.16.1",
     "phantomjs": "^1.9.18",
