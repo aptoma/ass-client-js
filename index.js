@@ -204,6 +204,7 @@ ASS.prototype.getUrl = function (endpoint, http) {
  * @param  {Object} [options]
  * @param  {Boolean} [options.https] if we should return https
  * @param  {Boolean} [options.encode] if we should url encode the actions
+ * @param  {String} [options.format] image format to use
  * @return {String}
  */
 ASS.prototype.createImageUrl = function (id, actions, options) {
@@ -211,7 +212,7 @@ ASS.prototype.createImageUrl = function (id, actions, options) {
 	options.https = typeof options.https === 'boolean' ? options.https : false;
 	options.encode = typeof options.encode === 'boolean' ? options.encode : false;
 
-	var url = this.getUrl(printf('/users/%s/images/%s.jpg', this.username, id), !options.https);
+	var url = this.getUrl(printf('/users/%s/images/%s.%s', this.username, id, options.format || 'jpg'), !options.https);
 	if (actions) {
 		url += '?' + qs.stringify({ t: actions }, { encode: false });
 	}
