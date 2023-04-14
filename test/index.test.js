@@ -116,7 +116,7 @@ describe('ASS Client', function () {
 				clock = sinon.useFakeTimers();
 				this.server.respondWith('GET', 'https://ass.com/timeout', [200, {}, '']);
 			} else {
-				nock('https://ass.com').get('/timeout').socketDelay(2000).reply(200);
+				nock('https://ass.com').get('/timeout').delayConnection(2000).reply(200);
 			}
 
 			this.client.request('timeout', {timeout: 1000}).catch(function (ex) {
@@ -305,6 +305,11 @@ describe('ASS Client', function () {
 		it('should encode the url', function () {
 			var url = this.client.createImageUrl(1, { resize: { width: 10, height: 10 } }, {encode: true});
 			assert.equal(url, 'http://ass.com/users/foobar/images/1.jpg?t%5Bresize%5D%5Bwidth%5D=10&t%5Bresize%5D%5Bheight%5D=10&accessToken=89085a51aa4864e89cec7ec9cbd20f895c2cad51ebb07a0f4a96a60277157662');
+		});
+
+		it('should support image format option', function () {
+			var url = this.client.createImageUrl(1, null, {format: 'webp'});
+			assert.equal(url, 'http://ass.com/users/foobar/images/1.webp?accessToken=f3d8cd259e57148f9360ef8f20653b2e44cd9ff61547de51c2b887adb54e2bcb');
 		});
 	});
 

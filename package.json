@@ -40,7 +40,7 @@
     "karma-mocha": "^0.2.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "mocha": "^1.21.4",
-    "nock": "^2.16.1",
+    "nock": "^13.3.0",
     "phantomjs": "^1.9.18",
     "readable-stream": "^2.0.3",
     "release-it": "0.0.11",
